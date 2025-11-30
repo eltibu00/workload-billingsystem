@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Operations Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Workload Dashboard Styles */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        .client-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .client-table th {
+            background: #f7fafc;
+            padding: 15px;
+            text-align: left;
+            color: #2d3748;
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .client-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+        }
+
+        .client-table tr:hover {
+            background: #f7fafc;
+        }
+
+        /* Billing Lookup Styles */
+        .search-box {
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .order-info {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .order-info.visible {
+            display: block;
+        }
+
+        .order-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .line-items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .line-items-table th {
+            background: #2d3748;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .line-items-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .total-row {
+            background: #fef5e7;
+            font-weight: bold;
+        }
+
+        /* Pallet Planner Styles */
+        .planner-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .planner-input-section {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        .planner-results-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .result-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .result-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .result-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .success {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .planner-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-btn {
+                margin-left: 0;
+                margin-top: 10px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏭 Warehouse Operations Dashboard</h1>
+            <p>Real-time workload tracking, billing lookup, and pallet planning</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('workload')">📊 Daily Workload</button>
+            <button class="tab" onclick="switchTab('billing')">💰 Billing Lookup</button>
+            <button class="tab" onclick="switchTab('planner')">📦 Pallet Planner</button>
+        </div>
+
+        <!-- Tab 1: Daily Workload -->
+        <div id="workload" class="tab-content active">
+            <h2 style="margin-bottom: 20px; color: #2d3748;">📊 Today's Workload Summary</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Cases</div>
+                    <div class="stat-value" id="total-cases">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Eaches</div>
+                    <div class="stat-value" id="total-eaches">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pallets Needed</div>
+                    <div class="stat-value" id="total-pallets">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Orders</div>
+                    <div class="stat-value" id="total-orders">-</div>
+                </div>
+            </div>
+
+            <h3 style="margin: 30px 0 15px; color: #2d3748;">Breakdown by Client</h3>
+            <table class="client-table" id="client-breakdown">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Cases</th>
+                        <th>Eaches</th>
+                        <th>Pallets</th>
+                        <th>Orders</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5" class="loading">
+                            <div class="spinner"></div>
+                            Loading workload data...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button onclick="loadWorkloadData()" style="margin-top: 20px;" class="search-btn">🔄 Refresh Data</button>
+        </div>
+
+        <!-- Tab 2: Billing Lookup -->
+        <div id="billing" class="tab-content">
+            <h2 style="margin-bottom: 20px; color: #2d3748;">💰 Order Billing Lookup</h2>
+            
+            <div class="search-box">
+                <input type="text" 
+                       id="order-search" 
+                       class="search-input" 
+                       placeholder="Enter Order Number (e.g., 634474)"
+                       onkeypress="if(event.key==='Enter') searchOrder()">
+                <button class="search-btn" onclick="searchOrder()">🔍 Search Order</button>
+            </div>
+
+            <div class="order-info" id="order-info">
+                <div class="order-info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Order Number</span>
+                        <span class="info-value" id="order-number">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Client</span>
+                        <span class="info-value" id="order-client">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Client PO</span>
+                        <span class="info-value" id="client-po">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Order Date</span>
+                        <span class="info-value" id="order-date">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Ship Company</span>
+                        <span class="info-value" id="ship-company">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Status</span>
+                        <span class="info-value" id="order-status">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <table class="line-items-table" id="line-items-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>SKU</th>
+                        <th>Stock #</th>
+                        <th>Description</th>
+                        <th>Qty</th>
+                        <th>Cases</th>
+                        <th>Eaches</th>
+                    </tr>
+                </thead>
+                <tbody id="line-items-body">
+                </tbody>
+            </table>
+
+            <div id="billing-message"></div>
+        </div>
+
+        <!-- Tab 3: Pallet Planner -->
+        <div id="planner" class="tab-content">
+            <h2 style="margin-bottom: 20px; color: #2d3748;">📦 Pallet Planning Calculator</h2>
+            
+            <div class="planner-grid">
+                <div class="planner-input-section">
+                    <h3 style="margin-bottom: 20px; color: #2d3748;">Enter Item Details</h3>
+                    
+                    <div class="input-group">
+                        <label>Client</label>
+                        <select id="planner-client" onchange="loadClientItems()">
+                            <option value="">Select Client...</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>SKU / Item</label>
+                        <select id="planner-sku" onchange="calculatePallets()">
+                            <option value="">Select SKU...</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Total Quantity</label>
+                        <input type="number" id="planner-qty" placeholder="Enter quantity" oninput="calculatePallets()">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Pallet Type</label>
+                        <select id="pallet-type" onchange="calculatePallets()">
+                            <option value="48x40">48×40 Standard</option>
+                            <option value="47x31">47×31 Euro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="planner-results-section">
+                    <h3 style="margin-bottom: 20px;">Pallet Requirements</h3>
+                    
+                    <div class="result-item">
+                        <div class="result-label">Units per Pallet</div>
+                        <div class="result-value" id="units-per-pallet">-</div>
+                    </div>
+
+                    <div class="result-item">
+                        <div class="result-label">Pallets Needed</div>
+                        <div class="result-value" id="pallets-needed">-</div>
+                    </div>
+
+                    <div class="result-item">
+                        <div class="result-label">Cases Needed</div>
+                        <div class="result-value" id="cases-needed">-</div>
+                    </div>
+
+                    <div class="result-item">
+                        <div class="result-label">+ Eaches</div>
+                        <div class="result-value" id="eaches-needed">-</div>
+                    </div>
+
+                    <div class="result-item" style="background: rgba(255,255,255,0.2); margin-top: 20px;">
+                        <div class="result-label">Item Footprint</div>
+                        <div class="result-value" id="item-footprint" style="font-size: 18px;">- sq in</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxKFnpe9-4MNuzIVhj14cNABW_AoE6LLUgpZxbVoW3mMICgDJou3CAwTU_g3tJ5ie9H/exec';
+        
+        let itemMasterData = [];
+        let orderData = [];
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Load data for specific tabs
+            if (tabName === 'workload') {
+                loadWorkloadData();
+            } else if (tabName === 'planner') {
+                loadPlannerClients();
+            }
+        }
+
+        // Load workload data
+        async function loadWorkloadData() {
+            try {
+                const response = await fetch(SHEET_URL + '?action=getWorkload');
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Update totals
+                document.getElementById('total-cases').textContent = data.totals.cases.toLocaleString();
+                document.getElementById('total-eaches').textContent = data.totals.eaches.toLocaleString();
+                document.getElementById('total-pallets').textContent = data.totals.pallets.toLocaleString();
+                document.getElementById('total-orders').textContent = data.totals.orders.toLocaleString();
+
+                // Update client breakdown
+                const tbody = document.querySelector('#client-breakdown tbody');
+                tbody.innerHTML = '';
+                
+                data.clients.forEach(client => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td><strong>${client.name}</strong></td>
+                        <td>${client.cases.toLocaleString()}</td>
+                        <td>${client.eaches.toLocaleString()}</td>
+                        <td>${client.pallets.toLocaleString()}</td>
+                        <td>${client.orders.toLocaleString()}</td>
+                    `;
+                });
+
+            } catch (error) {
+                console.error('Error loading workload:', error);
+                document.querySelector('#client-breakdown tbody').innerHTML = `
+                    <tr><td colspan="5" class="error">Error loading data. Please make sure your Google Sheet is set up correctly.</td></tr>
+                `;
+            }
+        }
+
+        // Search order
+        async function searchOrder() {
+            const orderNumber = document.getElementById('order-search').value.trim();
+            const messageDiv = document.getElementById('billing-message');
+            
+            if (!orderNumber) {
+                messageDiv.innerHTML = '<div class="error">Please enter an order number</div>';
+                return;
+            }
+
+            messageDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Searching...</div>';
+            document.getElementById('order-info').classList.remove('visible');
+            document.getElementById('line-items-table').style.display = 'none';
+
+            try {
+                const response = await fetch(SHEET_URL + '?action=getOrder&orderNumber=' + encodeURIComponent(orderNumber));
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                if (!data.order) {
+                    messageDiv.innerHTML = '<div class="error">Order not found. Please check the order number and try again.</div>';
+                    return;
+                }
+
+                messageDiv.innerHTML = '';
+
+                // Show order info
+                document.getElementById('order-number').textContent = data.order.orderNumber;
+                document.getElementById('order-client').textContent = data.order.client;
+                document.getElementById('client-po').textContent = data.order.clientPO || 'N/A';
+                document.getElementById('order-date').textContent = data.order.orderDate || 'N/A';
+                document.getElementById('ship-company').textContent = data.order.shipCompany || 'N/A';
+                document.getElementById('order-status').textContent = data.order.status || 'N/A';
+                document.getElementById('order-info').classList.add('visible');
+
+                // Show line items
+                const tbody = document.getElementById('line-items-body');
+                tbody.innerHTML = '';
+                
+                let totalCases = 0;
+                let totalEaches = 0;
+
+                data.lineItems.forEach(item => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${item.sku}</td>
+                        <td>${item.stockNumber || ''}</td>
+                        <td>${item.description}</td>
+                        <td>${item.qty}</td>
+                        <td>${item.cases}</td>
+                        <td>${item.eaches}</td>
+                    `;
+                    totalCases += parseInt(item.cases) || 0;
+                    totalEaches += parseInt(item.eaches) || 0;
+                });
+
+                // Add total row
+                const totalRow = tbody.insertRow();
+                totalRow.className = 'total-row';
+                totalRow.innerHTML = `
+                    <td colspan="4"><strong>📦 ORDER TOTAL</strong></td>
+                    <td><strong>${totalCases}</strong></td>
+                    <td><strong>${totalEaches}</strong></td>
+                `;
+
+                document.getElementById('line-items-table').style.display = 'table';
+                messageDiv.innerHTML = '<div class="success">✅ Order found! Details shown below.</div>';
+
+            } catch (error) {
+                console.error('Error searching order:', error);
+                messageDiv.innerHTML = '<div class="error">Error searching order. Please make sure your Google Sheet is set up correctly and data is present.</div>';
+            }
+        }
+
+        // Load clients for pallet planner
+        async function loadPlannerClients() {
+            try {
+                const response = await fetch(SHEET_URL + '?action=getClients');
+                const data = await response.json();
+                
+                const select = document.getElementById('planner-client');
+                select.innerHTML = '<option value="">Select Client...</option>';
+                
+                data.clients.forEach(client => {
+                    const option = document.createElement('option');
+                    option.value = client;
+                    option.textContent = client;
+                    select.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('Error loading clients:', error);
+            }
+        }
+
+        // Load items for selected client
+        async function loadClientItems() {
+            const client = document.getElementById('planner-client').value;
+            if (!client) return;
+
+            try {
+                const response = await fetch(SHEET_URL + '?action=getClientItems&client=' + encodeURIComponent(client));
+                const data = await response.json();
+                
+                const select = document.getElementById('planner-sku');
+                select.innerHTML = '<option value="">Select SKU...</option>';
+                
+                data.items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = JSON.stringify(item);
+                    option.textContent = `${item.sku} - ${item.description}`;
+                    select.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('Error loading items:', error);
+            }
+        }
+
+        // Calculate pallets
+        function calculatePallets() {
+            const skuData = document.getElementById('planner-sku').value;
+            const qty = parseInt(document.getElementById('planner-qty').value) || 0;
+            const palletType = document.getElementById('pallet-type').value;
+
+            if (!skuData || !qty) {
+                // Reset display
+                document.getElementById('units-per-pallet').textContent = '-';
+                document.getElementById('pallets-needed').textContent = '-';
+                document.getElementById('cases-needed').textContent = '-';
+                document.getElementById('eaches-needed').textContent = '-';
+                document.getElementById('item-footprint').textContent = '- sq in';
+                return;
+            }
+
+            try {
+                const item = JSON.parse(skuData);
+                
+                // Calculate based on pallet type
+                const unitsPerPallet = palletType === '48x40' ? item.unitsPer48x40 : item.unitsPer47x31;
+                const palletsNeeded = Math.ceil(qty / unitsPerPallet);
+                const cases = Math.floor(qty / item.casePack);
+                const eaches = qty % item.casePack;
+
+                // Update display
+                document.getElementById('units-per-pallet').textContent = unitsPerPallet.toLocaleString();
+                document.getElementById('pallets-needed').textContent = palletsNeeded.toLocaleString();
+                document.getElementById('cases-needed').textContent = cases.toLocaleString();
+                document.getElementById('eaches-needed').textContent = eaches.toLocaleString();
+                document.getElementById('item-footprint').textContent = item.unitCube.toFixed(2) + ' sq in';
+
+            } catch (error) {
+                console.error('Error calculating pallets:', error);
+            }
+        }
+
+        // Load initial data
+        window.addEventListener('load', () => {
+            loadWorkloadData();
+        });
+    </script>
+</body>
+</html>
