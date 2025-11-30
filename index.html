@@ -542,8 +542,8 @@
     </div>
 
     <script>
-        // Configuration
-        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxKFnpe9-4MNuzIVhj14cNABW_AoE6LLUgpZxbVoW3mMICgDJou3CAwTU_g3tJ5ie9H/exec';
+        // Configuration - Apps Script will provide its own URL
+        const SHEET_URL = '<?!= ScriptApp.getService().getUrl() ?>';
         
         let itemMasterData = [];
         let orderData = [];
