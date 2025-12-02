@@ -370,11 +370,14 @@
         <div id="workload" class="tab-content active">
             <h2 style="margin-bottom: 20px; color: #2d3748;">📊 Today's Workload Summary</h2>
             
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Total Cases</div>
-                    <div class="stat-value" id="total-cases">-</div>
-                </div>
+            <div class="stat-card">
+    <div class="stat-label">Total Lines</div>
+    <div class="stat-value" id="total-lines">-</div>
+</div>
+<div class="stat-card">
+    <div class="stat-label">Unique Orders</div>
+    <div class="stat-value" id="unique-orders">-</div>
+</div>
                 <div class="stat-card">
                     <div class="stat-label">Total Eaches</div>
                     <div class="stat-value" id="total-eaches">-</div>
@@ -397,6 +400,7 @@
                         <th>Cases</th>
                         <th>Eaches</th>
                         <th>Pallets</th>
+                        <th>Lines</th>
                         <th>Orders</th>
                     </tr>
                 </thead>
@@ -581,10 +585,13 @@
                 }
 
                 // Update totals
-                document.getElementById('total-cases').textContent = data.totals.cases.toLocaleString();
-                document.getElementById('total-eaches').textContent = data.totals.eaches.toLocaleString();
-                document.getElementById('total-pallets').textContent = data.totals.pallets.toLocaleString();
-                document.getElementById('total-orders').textContent = data.totals.orders.toLocaleString();
+                // Update totals
+document.getElementById('total-cases').textContent = data.totals.cases.toLocaleString();
+document.getElementById('total-eaches').textContent = data.totals.eaches.toLocaleString();
+document.getElementById('total-pallets').textContent = data.totals.pallets.toLocaleString();
+document.getElementById('total-lines').textContent = data.totals.lines.toLocaleString();
+document.getElementById('unique-orders').textContent = data.totals.uniqueOrders.toLocaleString();                
+                
 
                 // Update client breakdown
                 const tbody = document.querySelector('#client-breakdown tbody');
@@ -593,11 +600,12 @@
                 data.clients.forEach(client => {
                     const row = tbody.insertRow();
                     row.innerHTML = `
-                        <td><strong>${client.name}</strong></td>
-                        <td>${client.cases.toLocaleString()}</td>
-                        <td>${client.eaches.toLocaleString()}</td>
-                        <td>${client.pallets.toLocaleString()}</td>
-                        <td>${client.orders.toLocaleString()}</td>
+                         <td><strong>${client.name}</strong></td>
+                         <td>${client.cases.toLocaleString()}</td>
+                         <td>${client.eaches.toLocaleString()}</td>
+                         <td>${client.pallets.toLocaleString()}</td>
+                         <td>${client.lines.toLocaleString()}</td>
+                         <td>${client.orders.toLocaleString()}</td>
                     `;
                 });
 
