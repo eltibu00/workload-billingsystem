@@ -384,6 +384,10 @@
                     <div class="stat-value" id="total-pallets">-</div>
                 </div>
                 <div class="stat-card">
+                    <div class="stat-label">Total Units</div>
+                    <div class="stat-value" id="total-units">-</div>
+                </div>
+                <div class="stat-card">
                     <div class="stat-label">Total Lines</div>
                     <div class="stat-value" id="total-lines">-</div>
                 </div>
@@ -401,13 +405,14 @@
                         <th>Cases</th>
                         <th>Eaches</th>
                         <th>Pallets</th>
+                        <th>Units</th>
                         <th>Lines</th>
                         <th>Orders</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td colspan="6" class="loading">
+                        <td colspan="7" class="loading">
                             <div class="spinner"></div>
                             Loading workload data...
                         </td>
@@ -548,7 +553,7 @@
 
     <script>
         // Configuration - UPDATE THIS WITH YOUR APPS SCRIPT URL
-        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbw269MwWFoHVd0xV6dibh8zE3EQRSwEk_Lm10_cAAoA2yTplVKPTa_fqq7vgQ12fmfB/exec';
+        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxKFnpe9-4MNuzIVhj14cNABW_AoE6LLUgpZxbVoW3mMICgDJou3CAwTU_g3tJ5ie9H/exec';
         
         // Tab switching
         function switchTab(tabName) {
@@ -583,6 +588,7 @@
                 document.getElementById('total-cases').textContent = data.totals.cases.toLocaleString();
                 document.getElementById('total-eaches').textContent = data.totals.eaches.toLocaleString();
                 document.getElementById('total-pallets').textContent = data.totals.pallets.toLocaleString();
+                document.getElementById('total-units').textContent = data.totals.units.toLocaleString();
                 document.getElementById('total-lines').textContent = data.totals.lines.toLocaleString();
                 document.getElementById('unique-orders').textContent = data.totals.uniqueOrders.toLocaleString();
 
@@ -597,6 +603,7 @@
                         <td>${client.cases.toLocaleString()}</td>
                         <td>${client.eaches.toLocaleString()}</td>
                         <td>${client.pallets.toLocaleString()}</td>
+                        <td>${client.units.toLocaleString()}</td>
                         <td>${client.lines.toLocaleString()}</td>
                         <td>${client.orders.toLocaleString()}</td>
                     `;
@@ -605,7 +612,7 @@
             } catch (error) {
                 console.error('Error loading workload:', error);
                 document.querySelector('#client-breakdown tbody').innerHTML = `
-                    <tr><td colspan="6" class="error">Error loading data. Make sure your Google Sheet is set up and Apps Script is deployed.</td></tr>
+                    <tr><td colspan="7" class="error">Error loading data. Make sure your Google Sheet is set up and Apps Script is deployed.</td></tr>
                 `;
             }
         }
